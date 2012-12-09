@@ -1,59 +1,109 @@
 package panther;
 
-import robocode.HitByBulletEvent;
-import robocode.HitWallEvent;
-import robocode.Robot;
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+
+import robocode.AdvancedRobot;
+import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
+import robocode.TurnCompleteCondition;
 
-public class Panther extends Robot {
+public class Panther extends AdvancedRobot {
 
-	/**
-	 * run: Takeya's default behavior
-	 */
+	public Map<String, OtherBot> others = new HashMap<String, OtherBot>();
+	public OtherBot lockOn = null;
+
+	// Methods
 	public void run() {
-		// Initialization of the robot should be put here
-
-		// After trying out your robot, try uncommenting the import at the top,
-		// and the next line:
-
-		// setColors(Color.red,Color.blue,Color.green); // body,gun,radar
-
-		// Robot main loop
+		setColors(Color.pink, Color.pink, Color.pink);
 		while (true) {
-			// Replace the next 4 lines with any behavior you would like
-			ahead(100);
-			turnGunRight(360);
-			back(50);
-			turnGunRight(360);
-			turnRight(60);
+			waitFor(new TurnCompleteCondition(this));
+			lockOn = decideTarget();
+			doRadar();
+			doMove();
+			doFire();
 		}
 	}
 
-	/**
-	 * onScannedRobot: What to do when you see another robot
-	 */
-	public void onScannedRobot(ScannedRobotEvent e) {
-		// Replace the next line with any behavior you would like
-		if (e.getDistance() < 200)
-			fire(10);
-		else
+	private void doFire() {
+		if (lockOn == null)
+			return;
+		// TODO –¢—ˆˆÊ’u‚ð—\‘ª‚·‚éB
+		ScannedRobotEvent lastEvent = lockOn.getLastEvent();
+		double targetBearing = lastEvent.getBearingRadians()
+				+ getHeadingRadians();
+		targetBearing = normalAbsoluteHeading(targetBearing);
+		// –C‚ðŽwŒü‚·‚é
+		double bearing = targetBearing - getGunHeadingRadians();
+		bearing = normalRelativeAngle(bearing);
+		setTurnGunRightRadians(bearing);
+		// C³‚ª­‚È‚¢Žž‚É”­–C‚·‚éB
+		if (Math.abs(bearing) < 0.01 && lastEvent.getDistance() < 400)
 			fire(1);
 	}
 
-	/**
-	 * onHitByBullet: What to do when you're hit by a bullet
-	 */
-	public void onHitByBullet(HitByBulletEvent e) {
-		// Replace the next line with any behavior you would like
-		back(10);
+	private OtherBot decideTarget() {
+		if (!others.isEmpty()) {
+			for (String key : others.keySet()) {
+				// TODO Å“K‚È“G‚ð’T‚·B(‘Ì—Í‚ª’á‚­‚Ä‹ß‚¢“G)
+				OtherBot bot = others.get(key);
+				return others.get(key);
+			}
+		}
+		return null;
+	}
+
+	private void doRadar() {
+		// “G‚ð’T‚µ‘±‚¯‚éB
+		setTurnRadarLeftRadians(Math.PI);
 	}
 
 	/**
-	 * onHitWall: What to do when you hit a wall
+	 * “G‚ð‚Ç‚ñ‚Ç‚ñ‹L˜^‚·‚é
 	 */
-	public void onHitWall(HitWallEvent e) {
-		// Replace the next line with any behavior you would like
-		back(300);
-		ahead(300);
+	@Override
+	public void onScannedRobot(ScannedRobotEvent event) {
+		if (!others.containsKey(event.getName())) {
+			others.put(event.getName(), new OtherBot(event));
+		} else {
+			others.get(event.getName()).addEvent(event);
+		}
+	}
+
+	private void doMove() {
+		// TODO •W“I‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½‚çõ“GB
+		if (lockOn == null) {
+			setAhead(10);
+			return;
+		}
+		// TODO •W“I‚ª‚¢‚½‚ç‰ñ”ð‰^“®
+		dodge();
+	}
+
+	private void dodge() {
+		// TODO ‰ñ”ð‰^“®
+	}
+
+	@Override
+	public void onRobotDeath(RobotDeathEvent event) {
+		// Ž€‚ñ‚¾“G‚Í•W“I‚©‚çœŠO
+		if (others.containsKey(event.getName()))
+			others.remove(event.getName());
+	}
+
+	public static double normalAbsoluteHeading(double angle) {
+		if (angle < 0)
+			return (2 * Math.PI) + (angle % (2 * Math.PI));
+		else
+			return angle % (2 * Math.PI);
+	}
+
+	public static double normalRelativeAngle(double angle) {
+		if (angle > Math.PI)
+			return ((angle + Math.PI) % (2 * Math.PI)) - Math.PI;
+		if (angle < -Math.PI)
+			return ((angle - Math.PI) % (2 * Math.PI)) + Math.PI;
+		return angle;
 	}
 }

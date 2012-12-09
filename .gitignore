@@ -1,6 +1,8 @@
+robots
+config
+bin
+*.txt
 *.class
-
-# Package Files #
 *.jar
 *.war
 *.ear
