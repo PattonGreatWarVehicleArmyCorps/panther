@@ -40,7 +40,7 @@ public class Panther extends AdvancedRobot {
 			return;
 		// TODO 未来位置射撃よりもGuess Factor Aimingの実装したい。
 		// TODO 連続で外したら小銃ロジック切り替え
-		
+
 		// XXX たまに数値のおかしいイベントが入ってくる。なんで？
 		ScannedRobotEvent latest = lockOn.getLatestEvent();
 		double latestHeading = latest.getBearingRadians() + getHeadingRadians();
@@ -51,7 +51,7 @@ public class Panther extends AdvancedRobot {
 		setTurnGunRightRadians(bearing);
 		// 修正角が少なければ発砲する。
 		if (Math.abs(bearing) < 0.1)
-			fire(1);
+			setFire(1);
 	}
 
 	private void doRadar() {
@@ -97,16 +97,29 @@ public class Panther extends AdvancedRobot {
 	}
 
 	private void dodge() {
-		// TODO 壁と敵を避ける
-		if (others.areShooting()) {
-			// TODO 砲火にさらされているとき
-			setAhead(new Random(getTime()).nextDouble() + 80);
-			setTurnRightRadians(new Random(getTime()).nextDouble() + 1);
-		} else {
-			// TODO 通常時
-			// setAhead(new Random(getTime()).nextDouble() + 20);
-			// setTurnRightRadians(new Random(getTime()).nextDouble() * 3);
+		if (!others.areShooting()) {
+			// TODO 撃たれてないとき
+			return;
 		}
+		// 砲火にさらされているとき
+		// TODO 壁と敵を避ける
+		if (new Random(getTime()).nextBoolean()) {
+			setAhead(getRondomDouble() * 100 + getRondomDouble() * 10
+					+ getRondomDouble());
+		} else {
+			setBack(getRondomDouble() * 100 + getRondomDouble() * 10
+					+ getRondomDouble());
+		}
+
+		if (new Random(getTime()).nextBoolean()) {
+			setTurnRightRadians(getRondomDouble() * Math.PI);
+		} else {
+			setTurnLeft(getRondomDouble() * Math.PI);
+		}
+	}
+
+	private double getRondomDouble() {
+		return new Random(getTime()).nextDouble();
 	}
 
 	/**
@@ -116,7 +129,6 @@ public class Panther extends AdvancedRobot {
 	public void onRobotDeath(RobotDeathEvent event) {
 		others.remove(event);
 	}
-
 
 	/**
 	 * 2地点間の距離
@@ -137,7 +149,7 @@ public class Panther extends AdvancedRobot {
 		else
 			return angle % (2 * Math.PI);
 	}
-	
+
 	/**
 	 * 相対角を-PIからPIにノーマライズ
 	 */
