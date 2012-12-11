@@ -7,8 +7,8 @@ import robocode.ScannedRobotEvent;
 
 
 public class GFTMovement {
-	private static final double BATTLE_FIELD_WIDTH = 800;
-	private static final double BATTLE_FIELD_HEIGHT = 600;
+	public static double battleFieldWidth = 800;
+	public static double battleFieldHeight = 600;
 	private static final double WALL_MARGIN = 18;
 	private static final double MAX_TRIES = 125;
 	private static final double REVERSE_TUNER = 0.421075;
@@ -17,13 +17,15 @@ public class GFTMovement {
 
 	private AdvancedRobot robot;
 	private Rectangle2D fieldRectangle = new Rectangle2D.Double(WALL_MARGIN,
-			WALL_MARGIN, BATTLE_FIELD_WIDTH - WALL_MARGIN * 2,
-			BATTLE_FIELD_HEIGHT - WALL_MARGIN * 2);
+			WALL_MARGIN, battleFieldWidth - WALL_MARGIN * 2,
+			battleFieldHeight - WALL_MARGIN * 2);
 	private double enemyFirePower = 3;
 	private double direction = 0.4;
 
 	GFTMovement(AdvancedRobot _robot) {
 		this.robot = _robot;
+		battleFieldWidth = _robot.getBattleFieldWidth();
+		battleFieldHeight = _robot.getBattleFieldHeight();
 	}
 
 	public void onScannedRobot(ScannedRobotEvent e) {
@@ -46,7 +48,6 @@ public class GFTMovement {
 				/ GFTUtils.bulletVelocity(enemyFirePower) / WALL_BOUNCE_TUNER))) {
 			direction = -direction;
 		}
-		// Jamougha's cool way
 		double angle = GFTUtils
 				.absoluteBearing(robotLocation, robotDestination)
 				- robot.getHeadingRadians();

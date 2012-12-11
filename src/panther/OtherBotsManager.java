@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import robocode.HitByBulletEvent;
+import robocode.Robot;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
@@ -31,11 +32,11 @@ public class OtherBotsManager {
 		return candidate;
 	}
 
-	public void registerEnemyData(ScannedRobotEvent event) {
+	public void registerEnemyData(ScannedRobotEvent event, Robot me) {
 		if (!others.containsKey(event.getName())) {
-			others.put(event.getName(), new OtherBot(event));
+			others.put(event.getName(), new OtherBot(event, me));
 		} else {
-			others.get(event.getName()).addScan(event);
+			others.get(event.getName()).addScan(event, me);
 		}
 	}
 

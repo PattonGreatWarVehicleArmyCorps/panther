@@ -1,15 +1,18 @@
 package panther;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.util.Random;
 
 import robocode.AdvancedRobot;
 import robocode.HitByBulletEvent;
+import robocode.Robot;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 import robocode.TurnCompleteCondition;
+import robocode.util.Utils;
 
-public class Panther extends AdvancedRobot {
+public class Panther extends AdvancedRobot implements Cloneable {
 
 	public OtherBotsManager others = new OtherBotsManager();
 	public OtherBot lockOn = null;
@@ -17,17 +20,22 @@ public class Panther extends AdvancedRobot {
 	public int scaned = 0;
 	public boolean scanToRight = true;
 
+	private static double lateralDirection;
+	private static double lastEnemyVelocity;
+	private static final double BULLET_POWER = 1;
+	private GFTMovement movement;
+
 	// Methods
 	public void run() {
 		setColors(Color.pink, Color.pink, Color.pink);
-		enemyCount = getOthers();
 		// レーダー、砲塔、車体の回転を独立させる。
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
-
+		movement = new GFTMovement(this);
 		while (true) {
 			waitFor(new TurnCompleteCondition(this));
+			enemyCount = getOthers();
 			lockOn = others.decideTarget();
 			doRadar();
 			doMove();
@@ -42,16 +50,45 @@ public class Panther extends AdvancedRobot {
 		// TODO 連続で外したら小銃ロジック切り替え
 
 		// XXX たまに数値のおかしいイベントが入ってくる。なんで？
-		ScannedRobotEvent latest = lockOn.getLatestEvent();
-		double latestHeading = latest.getBearingRadians() + getHeadingRadians();
-		latestHeading = normalHeading(latestHeading);
-		// 砲を指向する
-		double bearing = latestHeading - getGunHeadingRadians();
-		bearing = normaliseBearing(bearing);
-		setTurnGunRightRadians(bearing);
-		// 修正角が少なければ発砲する。
-		if (Math.abs(bearing) < 0.1)
-			setFire(1);
+		// ScannedRobotEvent latest = lockOn.getLatestEvent();
+		// double latestHeading = latest.getBearingRadians() +
+		// getHeadingRadians();
+		// latestHeading = normalHeading(latestHeading);
+		// // 砲を指向する
+		// double bearing = latestHeading - getGunHeadingRadians();
+		// bearing = normaliseBearing(bearing);
+		// setTurnGunRightRadians(bearing);
+		// // 修正角が少なければ発砲する。
+		// if (Math.abs(bearing) < 0.1)
+		// setFire(1);
+
+		ScannedRobotEvent e = lockOn.getLatestEvent();
+		double enemyAbsoluteBearing = getHeadingRadians()
+				+ e.getBearingRadians();
+		double enemyDistance = e.getDistance();
+		double enemyVelocity = e.getVelocity();
+		if (enemyVelocity != 0) {
+			lateralDirection = GFTUtils.sign(enemyVelocity
+					* Math.sin(e.getHeadingRadians() - enemyAbsoluteBearing));
+		}
+		GFTWave wave = new GFTWave(this);
+		wave.gunLocation = new Point2D.Double(getX(), getY());
+		GFTWave.targetLocation = GFTUtils.project(wave.gunLocation,
+				enemyAbsoluteBearing, enemyDistance);
+		wave.lateralDirection = lateralDirection;
+		wave.bulletPower = BULLET_POWER;
+		wave.setSegmentations(enemyDistance, enemyVelocity, lastEnemyVelocity);
+		lastEnemyVelocity = enemyVelocity;
+		wave.bearing = enemyAbsoluteBearing;
+		setTurnGunRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing
+				- getGunHeadingRadians() + wave.mostVisitedBearingOffset()));
+		setFire(wave.bulletPower);
+		if (getEnergy() >= BULLET_POWER) {
+			addCustomEvent(wave);
+		}
+		// movement.onScannedRobot(lockOn.getLatestEvent());
+		// setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing
+		// - getRadarHeadingRadians()) * 2);
 	}
 
 	private void doRadar() {
@@ -61,7 +98,6 @@ public class Panther extends AdvancedRobot {
 		} else {
 			setTurnRadarLeftRadians(Math.PI);
 		}
-
 	}
 
 	/**
@@ -76,50 +112,50 @@ public class Panther extends AdvancedRobot {
 	 * 敵を全て記録する
 	 */
 	@Override
-	public void onScannedRobot(ScannedRobotEvent event) {
+	public void onScannedRobot(ScannedRobotEvent e) {
 		// すべての敵を記録したら、レーダの首振り方向を逆にする。
 		scaned++;
-		if (scaned >= enemyCount)
+		if (scaned >= enemyCount) {
 			scanToRight = (scanToRight ? false : true);
-
+			scaned = 0;
+		}
 		// 敵の行動を記録する。
-		others.registerEnemyData(event);
+		others.registerEnemyData(e, (Robot) this.clone());
 	}
 
 	private void doMove() {
 		// TODO 標的が見つからなかったら索敵。
-		if (lockOn == null) {
-			setAhead(10);
+		if (lockOn == null)
 			return;
-		}
+
 		// TODO 標的がいたら回避運動
 		dodge();
 	}
 
 	private void dodge() {
+
 		if (!others.areShooting()) {
 			// TODO 撃たれてないとき
 			return;
 		}
 		// 砲火にさらされているとき
 		// TODO 壁と敵を避ける
-		if (new Random(getTime()).nextBoolean()) {
-			setAhead(getRondomDouble() * 100 + getRondomDouble() * 10
+		if (new Random().nextBoolean()) {
+			setAhead(getRondomDouble() * 300 + getRondomDouble() * 10
 					+ getRondomDouble());
 		} else {
-			setBack(getRondomDouble() * 100 + getRondomDouble() * 10
+			setBack(getRondomDouble() * 300 + getRondomDouble() * 10
 					+ getRondomDouble());
 		}
-
-		if (new Random(getTime()).nextBoolean()) {
-			setTurnRightRadians(getRondomDouble() * Math.PI);
+		if (new Random().nextBoolean()) {
+			setTurnRightRadians(getRondomDouble() * Math.PI * 0.75);
 		} else {
-			setTurnLeft(getRondomDouble() * Math.PI);
+			setTurnLeft(getRondomDouble() * Math.PI * 0.75);
 		}
 	}
 
 	private double getRondomDouble() {
-		return new Random(getTime()).nextDouble();
+		return new Random().nextDouble();
 	}
 
 	/**
@@ -161,4 +197,8 @@ public class Panther extends AdvancedRobot {
 		return ang;
 	}
 
+	@Override
+	protected Object clone() {
+		return super.clone();
+	}
 }
