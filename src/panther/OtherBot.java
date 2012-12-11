@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Vector;
 
 import robocode.HitByBulletEvent;
-import robocode.Robot;
 import robocode.ScannedRobotEvent;
 
 /**
@@ -15,37 +14,24 @@ import robocode.ScannedRobotEvent;
 public class OtherBot {
 	// —š—ğ
 	List<ScannedRobotEvent> scans = new Vector<ScannedRobotEvent>();
-	List<Robot> historyMySelf = new Vector<Robot>();
-
 	List<HitByBulletEvent> bullets = new Vector<HitByBulletEvent>();
 	String name;
 	boolean answerdFire = false;
 
-	public OtherBot(ScannedRobotEvent event, Robot mySelf) {
+	public OtherBot(ScannedRobotEvent event) {
 		name = event.getName();
 		scans.add(event);
-		historyMySelf.add(mySelf);
 	}
 
-	public void addScan(ScannedRobotEvent event, Robot mySelf) {
+	public void addScan(ScannedRobotEvent event) {
 		scans.add(event);
-		historyMySelf.add(mySelf);
 		answerdFire = false;
 		if (scans.size() > 10)
 			scans.remove(0);
-		if (historyMySelf.size() > 10)
-			historyMySelf.remove(0);
 	}
 
 	public ScannedRobotEvent getLatestEvent() {
 		return scans.get(scans.size() - 1);
-	}
-
-	/**
-	 * ’T’m‚µ‚½“_‚Ì©•ª‚Ìî•ñ
-	 */
-	public Robot getLatestMySelf() {
-		return historyMySelf.get(historyMySelf.size() - 1);
 	}
 
 	public ScannedRobotEvent getPreviousEvent() {

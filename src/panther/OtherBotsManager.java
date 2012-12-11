@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import robocode.HitByBulletEvent;
-import robocode.Robot;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
@@ -23,7 +22,7 @@ public class OtherBotsManager {
 		OtherBot candidate = null;
 		for (String key : others.keySet()) {
 			candidate = others.get(key);
-			// TODO Œ«‚­’T‚·B(‘Ì—Í‚ª’á‚­‚Ä‹ß‚­‚Ä‚±‚¿‚ç‚ðŒ‚‚Á‚Ä‚«‚½“G)
+			// TODO Œ«‚­’T‚·B
 			if (others.get(key).getRisk() > max) {
 				max = others.get(key).getRisk();
 				candidate = others.get(key);
@@ -32,22 +31,20 @@ public class OtherBotsManager {
 		return candidate;
 	}
 
-	public void registerEnemyData(ScannedRobotEvent event, Robot me) {
+	public void registerEnemyData(ScannedRobotEvent event) {
 		if (!others.containsKey(event.getName())) {
-			others.put(event.getName(), new OtherBot(event, me));
+			others.put(event.getName(), new OtherBot(event));
 		} else {
-			others.get(event.getName()).addScan(event, me);
+			others.get(event.getName()).addScan(event);
 		}
 	}
 
+	
 	/**
-	 * –CŒ‚‚µ‚Ä‚é“G‚ª‚¢‚é‚©
+	 * “G‚ª–CŒ‚‚µ‚Ä‚¢‚é‚©
 	 */
-	public boolean areShooting() {
-		for (OtherBot bot : others.values())
-			if (bot.firesGun())
-				return true;
-		return false;
+	public boolean areShooting(String name) {
+		return others.get(name).firesGun();
 	}
 
 	/**
@@ -63,4 +60,5 @@ public class OtherBotsManager {
 			others.get(event.getName()).addBullet(event);
 		}
 	}
+
 }
