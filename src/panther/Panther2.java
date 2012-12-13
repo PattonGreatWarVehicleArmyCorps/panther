@@ -47,13 +47,12 @@ public class Panther2 extends AdvancedRobot {
 			setTurnRadarLeftRadians(Math.PI);
 		}
 
-		target = others.decideTarget();
-
 		// ‚»‚Ì“G‚ª–CŒ‚‚µ‚Ä‚½‚ç‰ñ”ğ‹@“®‚ğ•ÏX
 		if (others.areShooting(e.getName()))
 			movement.onScannedRobot(e);
 
 		// UŒ‚–Ú•W‚È‚çŒ‚‚Â
+		target = others.decideTarget();
 		if (target.getLatestEvent().getName().equals(e.getName()))
 			fcs(e);
 

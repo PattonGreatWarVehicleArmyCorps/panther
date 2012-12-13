@@ -61,13 +61,10 @@ public class OtherBot {
 	/**
 	 * ‹ºˆĞ“xAUŒ‚—Dæ“x‚ğ”»’èB
 	 */
-	public int getRisk() {
+	public double calcRisk() {
 		// TODO Œø‰Ê“I‚ÈŒvZ
-		int risk = 0;
-		// risk += bullets.size() * 5;
-		// risk += 5000 - getLatestEvent().getDistance();
-		risk += 200 - getLatestEvent().getEnergy();
-		return risk;
+		// ‚Æ‚è‚ ‚¦‚¸ã‚Á‚Ä‚é“G
+		return (200.0 - getLatestEvent().getEnergy());
 	}
 
 }

@@ -18,14 +18,13 @@ public class OtherBotsManager {
 	 * ‹ºˆÐ“xAUŒ‚ŽwŽ¦‚È‚Ç‚©‚çUŒ‚–Ú•W‚ðŒˆ‚ß‚éB
 	 */
 	public OtherBot decideTarget() {
-		int max = -999999999;
+		double max = Double.MIN_VALUE;
 		OtherBot candidate = null;
-		for (String key : others.keySet()) {
-			candidate = others.get(key);
+		for (OtherBot bot : others.values()) {
 			// TODO Œ«‚­’T‚·B
-			if (others.get(key).getRisk() > max) {
-				max = others.get(key).getRisk();
-				candidate = others.get(key);
+			if (bot.calcRisk() > max) {
+				max = bot.calcRisk();
+				candidate = bot;
 			}
 		}
 		return candidate;
