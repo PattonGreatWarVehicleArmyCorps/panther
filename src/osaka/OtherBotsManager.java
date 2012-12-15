@@ -1,4 +1,4 @@
-package panther;
+package osaka;
 
 import java.util.HashMap;
 import java.util.Map;

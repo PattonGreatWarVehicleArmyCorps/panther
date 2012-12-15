@@ -1,4 +1,4 @@
-package panther;
+package osaka;
 
 import java.util.List;
 import java.util.Vector;
@@ -63,8 +63,8 @@ public class OtherBot {
 	 */
 	public double calcRisk() {
 		// TODO Œø‰Ê“I‚ÈŒvZ
-		// ‚Æ‚è‚ ‚¦‚¸ã‚Á‚Ä‚é“G
-		return (200.0 - getLatestEvent().getEnergy());
+		// ‚Æ‚è‚ ‚¦‚¸ã‚Á‚Ä‚é“G‚Ì“àAˆê”Ô‹ß‚¢“G
+		return (200.0 - getLatestEvent().getEnergy()) + (getLatestEvent().getDistance() / 10000);
 	}
 
 }

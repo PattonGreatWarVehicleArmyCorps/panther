@@ -1,4 +1,4 @@
-package panther;
+package osaka;
 
 import robocode.*;
 import robocode.util.Utils;
