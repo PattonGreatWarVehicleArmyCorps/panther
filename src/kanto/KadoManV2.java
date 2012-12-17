@@ -1,4 +1,4 @@
-package osaka.senbatsu;
+package kanto;
 
 import robocode.HitByBulletEvent;
 import robocode.HitWallEvent;
@@ -70,8 +70,9 @@ public class KadoManV2 extends Robot {
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-		// Replace the next line with any behavior you would like
-		fire(FIRE_LEVEL);
+		if (!e.getName().startsWith("kanto")) {
+			fire(FIRE_LEVEL);
+		}
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package osaka.senbatsu;
+package kanto;
 
 import java.awt.Color;
 
@@ -12,7 +12,7 @@ import robocode.ScannedRobotEvent;
 /**
  * KaitenMan - a robot by (your name here)
  */
-public class KaitenMan extends AdvancedRobot {
+public class KaitenManV1 extends AdvancedRobot {
 
 	int dameged = 0;
 
@@ -29,8 +29,7 @@ public class KaitenMan extends AdvancedRobot {
 	public void run() {
 		setBodyColor(Color.ORANGE);
 		while (true) {
-			setMaxVelocity(5);
-			turnRight(10000);
+			setTurnRight(10000);
 			// Limit our speed to 5
 			setMaxVelocity(5);
 			// Start moving (and turning)
@@ -44,8 +43,7 @@ public class KaitenMan extends AdvancedRobot {
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-		if (!(e.getName().equals("zumiOne") || e.getName().equals("zumiTwo") || e
-				.getName().equals("zumiThree"))) {
+		if (!e.getName().startsWith("kanto")) {
 			fire(FIRE_LEVEL);
 		}
 	}

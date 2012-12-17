@@ -1,4 +1,6 @@
-package osaka.senbatsu;
+package kanto;
+
+import java.awt.Color;
 
 import robocode.HitByBulletEvent;
 import robocode.HitWallEvent;
@@ -10,42 +12,55 @@ import robocode.ScannedRobotEvent;
 /**
  * KadoMan - a robot by (your name here)
  */
-public class KadoManV1 extends Robot {
+public class osakaOne extends Robot {
 
 	/**
-	 * for be along wall 
+	 * for be along wall
 	 */
 	boolean isWalled = false;
 	boolean gotWall = false;
+	boolean isCenter = true;
 	double wallBearing = 0;
-	
+	int dameged = 0;
+
 	/**
 	 * attack level
 	 */
-	static double FIRE_LEVEL = 1.5;
+	static double FIRE_LEVEL = 2.3;
+
+	static int escapeThreshold = 2;
 
 	/**
 	 * run: KadoMan's default behavior
 	 */
 	public void run() {
-
-		// setAdjustRadarForGunTurn(true);
-
+		setBodyColor(Color.ORANGE);
 		// Robot main loop
 		while (true) {
-			double rand = Math.random() % 4;
-			// Replace the next 4 lines with any behavior you would like
 			if (!isWalled) {
 				ahead(500);
 			} else if (!gotWall) {
 				withWall(wallBearing);
 				gotWall = true;
+			} else if (!isCenter) {
+				ahead(getBattleFieldWidth() / 2);
+				isCenter = true;
 			} else {
-				ahead(100 * rand);
-				turnGunRight(180);
-				back(200 * rand);
-				turnGunLeft(180);
-				ahead(100 * rand);
+				double rand = Math.random() % 5;
+				if (rand % 2 == 0) {
+					ahead(70 * rand);
+					turnGunRight(150);
+					back(140 * rand);
+					turnGunLeft(150);
+					ahead(70 * rand);
+				} else {
+					back(70 * rand);
+					turnGunRight(150);
+					ahead(140 * rand);
+					turnGunLeft(150);
+					back(70 * rand);
+
+				}
 			}
 		}
 	}
@@ -54,8 +69,9 @@ public class KadoManV1 extends Robot {
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-		// Replace the next line with any behavior you would like
-		fire(FIRE_LEVEL);
+		if (!e.getName().startsWith("kanto")) {
+			fire(FIRE_LEVEL);
+		}
 	}
 
 	/**
@@ -63,7 +79,14 @@ public class KadoManV1 extends Robot {
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
 		// Replace the next line with any behavior you would like
-		back(10);
+		if (escapeThreshold <= dameged && isWalled == true && gotWall == true
+				&& isCenter == true) {
+			isWalled = false;
+			gotWall = false;
+			isCenter = false;
+			dameged = 0;
+		}
+		dameged += 1;
 	}
 
 	/**
