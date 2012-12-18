@@ -3,6 +3,3 @@ config
 bin
 *.txt
 *.class
-*.jar
-*.war
-*.ear
