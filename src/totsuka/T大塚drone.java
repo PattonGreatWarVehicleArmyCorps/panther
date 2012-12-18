@@ -8,7 +8,7 @@ import java.awt.geom.*;
 import java.io.IOException;
 
 public class T‘å’Ëdrone extends TeamRobot {
-	private static final double BULLET_POWER = 1.6;
+	private static final double BULLET_POWER = 1.9;
 
 	private static double lateralDirection;
 	private static double lastEnemyVelocity;
