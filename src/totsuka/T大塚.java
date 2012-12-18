@@ -15,12 +15,14 @@ public class T大塚 extends TeamRobot {
 	private static GFTMovement movement;
 	private static String target;
 
-	public EnemyBotsManager others = new EnemyBotsManager();
+	public EnemyBotsManager enemies = new EnemyBotsManager();
+	public FriendBotsManager friends = new FriendBotsManager();
 	public boolean scanToRight = true;
 	public int scaned = 0;
 
 	public void run() {
-		setColors(Color.BLUE, Color.BLACK, Color.YELLOW);
+		setColors(new Color(255, 000, 051), new Color(255, 000, 051),
+				new Color(255, 000, 051));
 		lateralDirection = 1;
 		lastEnemyVelocity = 0;
 		setAdjustRadarForGunTurn(true);
@@ -34,10 +36,12 @@ public class T大塚 extends TeamRobot {
 
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// 味方なら無視
-		if (e.getName().startsWith("osaka"))
+		if (isFriend(e)) {
+			friends.registerFriendData(e);
 			return;
+		}
 		// 敵の行動を記録する。
-		others.registerEnemyData(e);
+		enemies.registerEnemyData(e);
 		// すべての敵を記録したら、レーダの首振り方向を逆にする。
 		// TODO 攻撃対象を重点的にスキャンする or 乱戦だと全周スキャンで均等に情報を更新する方がベター？
 		scaned++;
@@ -52,17 +56,22 @@ public class T大塚 extends TeamRobot {
 		}
 
 		// その敵が砲撃してたら回避機動を変更
-		if (others.areShooting(e.getName()))
+		if (enemies.areShooting(e.getName()))
 			movement.onScannedRobot(e);
 
 		// 攻撃目標ならチームに攻撃を指示して撃つ
 		if (target == null) {
-			target = others.decideTarget().getLatestEvent().getName();
+			target = enemies.decideTarget().getLatestEvent().getName();
 		}
-		if (target.equals(e.getName())) {
+		if (target.equals(e.getName()) || friends.isMidwayOfTarget(e)) {
 			assignMission(target);
 			fcs(e);
 		}
+	}
+
+	private boolean isFriend(ScannedRobotEvent e) {
+		return e.getName().contains("Y宿里") || e.getName().contains("K山藤")
+				|| e.getName().contains("T大塚");
 	}
 
 	public void assignMission(String target) {
@@ -88,7 +97,6 @@ public class T大塚 extends TeamRobot {
 	 * 射撃管制
 	 */
 	private void fcs(ScannedRobotEvent e) {
-		// TODO 友軍誤射回避。
 		double enemyAbsoluteBearing = getHeadingRadians()
 				+ e.getBearingRadians();
 		double enemyDistance = e.getDistance();
@@ -119,7 +127,8 @@ public class T大塚 extends TeamRobot {
 	 */
 	@Override
 	public void onRobotDeath(RobotDeathEvent event) {
-		others.remove(event);
+		enemies.remove(event);
+		friends.remove(event);
 		if (event.getName().equals(target))
 			target = null;
 	}
