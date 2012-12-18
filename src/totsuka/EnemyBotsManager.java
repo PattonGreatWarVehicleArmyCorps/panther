@@ -10,7 +10,7 @@ import robocode.ScannedRobotEvent;
 /**
  * “G‚Ìî•ñ‚ğŠÇ—‚·‚é
  */
-public class OtherBotsManager {
+public class EnemyBotsManager {
 
 	public Map<String, OtherBot> others = new HashMap<String, OtherBot>();
 

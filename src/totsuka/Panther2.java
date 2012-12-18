@@ -14,7 +14,7 @@ public class Panther2 extends AdvancedRobot {
 	private static GFTMovement movement;
 	private static OtherBot target;
 
-	public OtherBotsManager others = new OtherBotsManager();
+	public EnemyBotsManager others = new EnemyBotsManager();
 	public boolean scanToRight = true;
 	public int scaned = 0;
 

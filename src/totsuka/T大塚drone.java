@@ -15,7 +15,7 @@ public class T‘å’Ëdrone extends TeamRobot {
 	private static GFTMovement movement;
 	private static String target;
 
-	public OtherBotsManager others = new OtherBotsManager();
+	public EnemyBotsManager others = new EnemyBotsManager();
 	public boolean scanToRight = true;
 	public int scaned = 0;
 
