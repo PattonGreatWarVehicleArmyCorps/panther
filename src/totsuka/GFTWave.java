@@ -1,4 +1,4 @@
-package osaka;
+package totsuka;
 import java.awt.geom.Point2D;
 
 import robocode.AdvancedRobot;

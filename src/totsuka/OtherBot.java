@@ -1,4 +1,4 @@
-package osaka;
+package totsuka;
 
 import java.util.List;
 import java.util.Vector;

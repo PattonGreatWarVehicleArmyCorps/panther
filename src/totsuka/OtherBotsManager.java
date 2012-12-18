@@ -1,4 +1,4 @@
-package osaka;
+package totsuka;
 
 import java.util.HashMap;
 import java.util.Map;

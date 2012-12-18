@@ -1,4 +1,4 @@
-package osaka;
+package totsuka;
 
 import robocode.*;
 import robocode.util.Utils;
