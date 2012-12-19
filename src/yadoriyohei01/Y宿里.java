@@ -30,7 +30,8 @@ public class Y宿里 extends TeamRobot {
 	public int scaned = 0;
 
 	public void run() {
-		setColors(Color.BLUE, Color.BLACK, Color.YELLOW);
+		setColors(new Color(255, 000, 051), new Color(255, 000, 051),
+				new Color(255, 000, 051));
 		lateralDirection = 1;
 		lastEnemyVelocity = 0;
 		setAdjustRadarForGunTurn(true);
@@ -90,21 +91,12 @@ public class Y宿里 extends TeamRobot {
 			movement.onScannedRobot(e);
 		}
 
-		// 攻撃目標ならチームに攻撃を指示して撃つ
+		// 攻撃目標なら撃つ
 		if (targetName == null) {
 			targetName = others.decideTarget().getLatestEvent().getName();
 		}
 		if (targetName.equals(e.getName())) {
-			assignMission(targetName);
 			fcs(e);
-		}
-	}
-
-	public void assignMission(String target) {
-		try {
-			broadcastMessage("target:" + target);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -168,9 +160,9 @@ public class Y宿里 extends TeamRobot {
 		// ターゲットが一人になったら、追いかけるモード突入
 		if (!isFriend(name)) {
 			enemyNum--;
-			if (enemyNum == 1) {
-				isAssultMode = true;
-			}
+//			if (enemyNum == 1) {
+//				isAssultMode = true;
+//			}
 		}
 	}
 
